@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vanilla Unicorn | Room-timers</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .room-photo {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-bottom: 2px solid #ff00ff;
+            margin-bottom: 10px;
+        }
+        .timer-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            padding: 20px;
+        }
+        /* Styling voor de knoppen-container */
+        .button-group {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* 2 rijen van 3 knoppen */
+            gap: 5px;
+            margin-top: 10px;
+        }
+        .btn-timer {
+            background: #1a1a1a;
+            color: #ff00ff;
+            border: 1px solid #ff00ff;
+            padding: 8px 2px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: 0.2s;
+            font-weight: bold;
+        }
+        .btn-timer:hover {
+            background: #ff00ff;
+            color: white;
+            box-shadow: 0 0 10px #ff00ff;
+        }
+        @media (max-width: 1000px) { .timer-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 600px) { .timer-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <img src="logo.png" alt="Vanilla Unicorn Logo">
+            </div>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="index.html">Menu rekentool</a></li>
+                    <li><a href="timers.html">Room-timers</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section class="container">
+        <h2>VIP Kamers & Timers</h2>
+        <div class="timer-grid" id="timerContainer"></div>
+    </section>
+
+    <script src="script.js"></script>
+    <script>
+        const container = document.getElementById('timerContainer');
+        
+        const kamers = [
+            { naam: "BDSM Room", img: "BDSM-Room.png" },
+            { naam: "Standard Room 1", img: "Standard-Room1.png" },
+            { naam: "Standard Room 2", img: "Standard-Room2.png" },
+            { naam: "Police Room", img: "Police-Room.png" },
+            { naam: "Hospital Room", img: "Hospital-Room.png" },
+            { naam: "Standard Room 3", img: "Standard-Room3.png" },
+            { naam: "Standard Room 4", img: "Standard-Room4.png" },
+            { naam: "Romantic Room", img: "Romantic-Room.png" }
+        ];
+
+        kamers.forEach((kamer, index) => {
+            const id = index + 1;
+            const card = document.createElement('div');
+            card.className = 'timer-card';
+            
+            card.innerHTML = `
+                <img src="${kamer.img}" alt="${kamer.naam}" class="room-photo">
+                <h3>${kamer.naam}</h3>
+                <div id="timer${id}" class="timer-display">00:00</div>
+                <div class="button-group">
+                    <button class="btn-timer" onclick="startTimer(600, 'timer${id}')">10m</button>
+                    <button class="btn-timer" onclick="startTimer(1200, 'timer${id}')">20m</button>
+                    <button class="btn-timer" onclick="startTimer(1800, 'timer${id}')">30m</button>
+                    <button class="btn-timer" onclick="startTimer(2400, 'timer${id}')">40m</button>
+                    <button class="btn-timer" onclick="startTimer(3000, 'timer${id}')">50m</button>
+                    <button class="btn-timer" onclick="startTimer(3600, 'timer${id}')">60m</button>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    </script>
+    <section id="hero">
+        <div class="hero-content">
+            <h3>Deze tool is ontwikkeld door Drijkes, in samenwerking met Gemini, exclusief voor de Vanilla Unicorn op de FiveM-server van EldoradoRP.</h3>
+        </div>
+    </section>
+</body>
+</html>
