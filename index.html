@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vanilla Unicorn | Menu</title>
+    <title>Vanilla Unicorn | Menu & Timers</title>
     <link rel="stylesheet" href="style.css">
     <style>
         :root { 
@@ -20,13 +20,69 @@
             padding: 0;
         }
 
-        .wrap { max-width: 1000px; margin: 20px auto; padding: 0 20px; }
+        /* --- HEADER STYLING --- */
+        header {
+            background: #000;
+            border-bottom: 2px solid var(--pink);
+            padding: 15px 0;
+        }
 
-        header { background: #000; border-bottom: 2px solid var(--pink); padding: 15px 0; }
-        .header-content { max-width: 1000px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }
-        .logo img { height: 50px; }
-        .nav-links { list-style: none; display: flex; gap: 20px; margin: 0; padding: 0; }
-        .nav-links a { color: white; text-decoration: none; font-weight: bold; text-transform: uppercase; }
+        .header-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .logo img {
+            /* Behoudt natuurlijke grootte zoals in timers.html */
+            display: block;
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            gap: 20px;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+        }
+
+        /* --- ROOM-TIMERS SPECIFIEKE STYLING --- */
+        .room-photo {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-bottom: 2px solid #ff00ff;
+            margin-bottom: 10px;
+        }
+
+        .timer-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 5px;
+            margin-top: 10px;
+        }
+
+        /* --- MENU & REKENTOOL STYLING --- */
+        .wrap { max-width: 1000px; margin: 20px auto; padding: 0 20px; }
 
         button, .btn-timer {
             background: #1a1a1a;
@@ -89,22 +145,18 @@
             color: white;
             padding: 10px;
             border-radius: 4px;
-            width: 100%; /* Zorgt dat ze de grid-cel vullen */
+            width: 100%;
             box-sizing: border-box;
         }
 
-        /* GRID VOOR BEHEER MENU */
         .admin-controls {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr; /* Drie gelijke kolommen */
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 15px;
             align-items: end;
         }
 
-        .admin-full-row {
-            grid-column: 1 / -1; /* Nieuwe categorie balk over de volle breedte */
-            margin-top: 10px;
-        }
+        .admin-full-row { grid-column: 1 / -1; margin-top: 10px; }
 
         .total-pill {
             background: var(--pink);
@@ -124,6 +176,9 @@
         }
 
         #menu-canvas { display: none; }
+
+        @media (max-width: 1000px) { .timer-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 600px) { .timer-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -172,24 +227,24 @@
             <div class="admin-controls">
                 <div>
                     <label style="font-size: 0.7rem; color: #888;">PRODUCT NAAM</label>
-                    <input type="text" id="new-name" class="admin-input" placeholder="Naam">
+                    <input type="text" id="new-name" class="admin-input" placeholder="bijv. Mojito">
                 </div>
                 <div>
                     <label style="font-size: 0.7rem; color: #888;">PRIJS (€)</label>
-                    <input type="number" id="new-price" class="admin-input" placeholder="Prijs">
+                    <input type="number" id="new-price" class="admin-input" placeholder="60">
                 </div>
                 <div>
                     <label style="font-size: 0.7rem; color: #888;">CATEGORIE</label>
-                    <select id="cat-select" class="admin-input" onchange="toggleNewCat(this.value)"></select>
-                </div>
-                
-                <div id="new-cat-wrapper" class="admin-full-row" style="display:none;">
-                    <label style="font-size: 0.7rem; color: #888;">NIEUWE CATEGORIE NAAM</label>
-                    <input type="text" id="new-cat-name" class="admin-input" placeholder="Typ hier de nieuwe categorie...">
+                    <select id="cat-select" class="admin-input">
+                        <option value="Cocktails">Cocktails</option>
+                        <option value="Mocktails">Mocktails</option>
+                        <option value="Alcoholische Dranken">Alcoholische Dranken</option>
+                        <option value="Frisdranken">Frisdranken</option>
+                    </select>
                 </div>
 
                 <div class="admin-full-row">
-                    <button class="primary" style="width: 100%;" onclick="addProduct()">Product Toevoegen aan Database</button>
+                    <button class="primary" style="width: 100%;" onclick="addProduct()">Product Opslaan</button>
                 </div>
             </div>
             <br>
@@ -209,7 +264,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, onValue, push, remove, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, onValue, push, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyCGwVSBIOTwKjgTTDil9LB_G8Luyi2lIUc",
@@ -227,6 +282,7 @@
 
         let menu = [];
         window.isAdmin = false;
+        const fixedCategories = ["Cocktails", "Mocktails", "Alcoholische Dranken", "Frisdranken"];
 
         onValue(menuRef, (snapshot) => {
             const data = snapshot.val();
@@ -236,48 +292,40 @@
 
         function render() {
             const container = document.getElementById('calculator-fields');
-            if (menu.length === 0) { container.innerHTML = "Geen producten in database."; }
-            
-            const categories = [...new Set(menu.map(item => item.cat))];
             container.innerHTML = '';
 
-            categories.forEach(cat => {
-                container.innerHTML += `<div class="category-header">${cat}</div>`;
-                menu.filter(i => i.cat === cat).forEach(item => {
-                    container.innerHTML += `
-                        <div class="grid-row">
+            fixedCategories.forEach(cat => {
+                const items = menu.filter(i => i.cat === cat);
+                if(items.length > 0 || window.isAdmin) {
+                    container.innerHTML += `<div class="category-header">${cat}</div>`;
+                    items.forEach(item => {
+                        container.innerHTML += `<div class="grid-row">
                             <span>${item.name}</span>
                             <span style="color:#777;">€${item.price}</span>
-                            <input type="number" class="qty-input" data-id="${item.id}" value="0" min="0" style="width: 50px; text-align: center;">
+                            <input type="number" class="qty-input admin-input" data-id="${item.id}" value="0" min="0" style="width: 60px; text-align: center; padding: 5px;">
                             <span style="color:var(--pink); font-weight:bold; text-align: right;">€<span id="sub-${item.id}">0</span></span>
                             ${window.isAdmin ? `<button style="color:red; border-color:red; padding:2px 8px;" onclick="removeProduct('${item.id}')">X</button>` : ''}
                         </div>`;
-                });
+                    });
+                }
             });
 
-            const select = document.getElementById('cat-select');
-            select.innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join('') + `<option value="NEW">+ Nieuwe...</option>`;
+            if (menu.length === 0) container.innerHTML = "Geen producten gevonden.";
         }
 
         window.addProduct = function() {
-            const name = document.getElementById('new-name').value;
+            const name = document.getElementById('new-name').value.trim();
             const price = parseFloat(document.getElementById('new-price').value);
-            const cat = document.getElementById('cat-select').value === 'NEW' ? document.getElementById('new-cat-name').value : document.getElementById('cat-select').value;
-            
-            if(name && price && cat) {
+            const cat = document.getElementById('cat-select').value;
+            if(name && !isNaN(price)) {
                 push(menuRef, { name, price, cat });
                 document.getElementById('new-name').value = '';
                 document.getElementById('new-price').value = '';
-                document.getElementById('new-cat-name').value = '';
-            } else {
-                alert("Vul alle velden in!");
             }
         };
 
         window.removeProduct = function(id) {
-            if(confirm("Dit product verwijderen voor iedereen?")) {
-                remove(ref(db, 'menu/' + id));
-            }
+            if(confirm("Verwijderen?")) remove(ref(db, 'menu/' + id));
         };
 
         window.calculate = function() {
@@ -285,11 +333,13 @@
             document.querySelectorAll('.qty-input').forEach(input => {
                 const id = input.getAttribute('data-id');
                 const item = menu.find(i => i.id === id);
-                const sub = (parseInt(input.value) || 0) * item.price;
-                document.getElementById(`sub-${id}`).textContent = sub;
-                total += sub;
+                if(item) {
+                    const sub = (parseInt(input.value) || 0) * item.price;
+                    document.getElementById(`sub-${id}`).textContent = sub;
+                    total += sub;
+                }
             });
-            document.getElementById('sum-total').textContent = total.toLocaleString();
+            document.getElementById('sum-total').textContent = total;
             document.getElementById('res-container').hidden = false;
         };
 
@@ -298,25 +348,26 @@
             const ctx = canvas.getContext('2d');
             const bg = new Image();
             bg.setAttribute('crossOrigin', 'anonymous');
-            bg.src = 'menu_bg.jpg?' + new Date().getTime();
+            bg.src = 'menu_bg.png?' + new Date().getTime();
 
             bg.onload = function() {
                 canvas.width = bg.width; canvas.height = bg.height;
                 ctx.drawImage(bg, 0, 0);
                 const yStart = 480; let y = yStart; const margin = 100;
                 const columnWidth = (canvas.width / 2) - (margin * 1.3);
-                const categories = [...new Set(menu.map(item => item.cat))];
-
-                categories.forEach((cat, index) => {
+                
+                fixedCategories.forEach((cat, index) => {
+                    const items = menu.filter(i => i.cat === cat);
+                    if(items.length === 0) return;
                     let col = index % 2;
                     let xPos = margin + (col * (columnWidth + 80));
                     if (col === 1 && index === 1) y = yStart;
                     ctx.font = "bold 42px Arial"; ctx.fillStyle = "#ff00ff"; ctx.textAlign = "left";
-                    ctx.shadowBlur = 12; ctx.shadowColor = "#ff00ff";
+                    ctx.shadowBlur = 10; ctx.shadowColor = "#ff00ff";
                     ctx.fillText(cat.toUpperCase(), xPos, y);
                     ctx.shadowBlur = 0; y += 60;
                     ctx.font = "32px Arial"; ctx.fillStyle = "white";
-                    menu.filter(i => i.cat === cat).forEach(item => {
+                    items.forEach(item => {
                         ctx.textAlign = "left"; ctx.fillText(item.name, xPos + 10, y);
                         ctx.textAlign = "right"; ctx.fillText(`€${item.price},-`, xPos + columnWidth, y);
                         y += 45;
@@ -328,21 +379,37 @@
                 link.href = canvas.toDataURL('image/png');
                 link.click();
             };
+            bg.onerror = () => alert("Zorg dat 'menu_bg.png' in de map staat.");
         };
 
         window.checkLogin = function() {
             if(document.getElementById('pass-input').value === "unicorn2024") {
-                window.isAdmin = true; 
-                document.getElementById('admin-panel').style.display = 'block'; 
-                document.getElementById('login-overlay').style.display = 'none'; 
+                window.isAdmin = true;
+                document.getElementById('admin-panel').style.display = 'block';
+                document.getElementById('login-overlay').style.display = 'none';
                 render();
-            } else { alert("Fout wachtwoord!"); }
+            } else { alert("Fout!"); }
         };
 
         window.showLogin = function() { document.getElementById('login-overlay').style.display = 'flex'; };
-        window.toggleNewCat = function(v) { document.getElementById('new-cat-wrapper').style.display = v === 'NEW' ? 'block' : 'none'; };
-        window.resetFields = function() { document.querySelectorAll('.qty-input').forEach(i => i.value = 0); window.calculate(); };
-        window.copyBon = function() { alert("Bon gekopieerd naar klembord!"); };
+        
+        window.resetFields = function() { 
+            document.querySelectorAll('.qty-input').forEach(i => i.value = 0); 
+            window.calculate();
+        };
+
+        window.copyBon = function() {
+            let text = "UNICORN BON:\n";
+            document.querySelectorAll('.qty-input').forEach(input => {
+                const qty = parseInt(input.value) || 0;
+                if(qty > 0) {
+                    const item = menu.find(i => i.id === input.getAttribute('data-id'));
+                    text += `${qty}x ${item.name} (€${qty * item.price})\n`;
+                }
+            });
+            text += "TOTAAL: €" + document.getElementById('sum-total').textContent;
+            navigator.clipboard.writeText(text).then(() => alert("Bon gekopieerd!"));
+        };
     </script>
 </body>
 </html>
