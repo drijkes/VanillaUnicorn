@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vanilla Unicorn | Menu Beheer</title>
+    <title>Vanilla Unicorn | Room-timers</title>
+    <link rel="stylesheet" href="style.css">
     <style>
         :root { 
             --pink: #ff00ff; 
@@ -11,19 +12,11 @@
             --card-bg: #111;
         }
 
-        body {
-            background-color: var(--dark-bg);
-            color: white;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
-        }
-
-        /* Header & Navigatie */
+        /* --- HEADER & NAVIGATIE STYLING --- */
         header {
             background: #000;
             border-bottom: 2px solid var(--pink);
-            padding: 10px 0;
+            padding: 15px 0;
         }
 
         .header-content {
@@ -35,12 +28,15 @@
             padding: 0 20px;
         }
 
-        .logo img { height: 50px; }
+        .logo img {
+            height: 60px; /* Pas aan naar wens */
+            display: block;
+        }
 
         .nav-links {
             list-style: none;
             display: flex;
-            gap: 20px;
+            gap: 25px;
             margin: 0;
             padding: 0;
         }
@@ -50,13 +46,52 @@
             text-decoration: none;
             font-weight: bold;
             text-transform: uppercase;
-            font-size: 0.8rem;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            transition: 0.3s;
         }
 
-        .nav-links a:hover { color: var(--pink); }
+        .nav-links a:hover {
+            color: var(--pink);
+            text-shadow: 0 0 8px var(--pink);
+        }
 
-        /* Content */
-        .wrap { max-width: 1000px; margin: 30px auto; padding: 0 20px; }
+        /* --- BODY & ALGEMENE STYLING --- */
+        body {
+            background-color: var(--dark-bg);
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .wrap { max-width: 1000px; margin: 20px auto; padding: 0 20px; }
+
+        button, .btn-timer {
+            background: #1a1a1a;
+            color: #ff00ff;
+            border: 1px solid #ff00ff;
+            padding: 10px 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: 0.2s;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-radius: 4px;
+        }
+
+        button:hover, .btn-timer:hover {
+            background: #ff00ff;
+            color: white;
+            box-shadow: 0 0 10px #ff00ff;
+        }
+
+        button.primary {
+            background: var(--pink);
+            color: black;
+            border: 2px solid var(--pink);
+        }
 
         .card {
             background: var(--card-bg);
@@ -74,20 +109,20 @@
             grid-template-columns: 2fr 1fr 0.8fr 1fr auto; 
             gap: 15px; 
             align-items: center; 
-            padding: 10px 0; 
-            border-bottom: 1px solid #222;
+            padding: 12px 0; 
+            border-bottom: 1px solid #333;
         }
 
         .category-header { 
             color: var(--pink); 
             font-weight: bold; 
             text-transform: uppercase; 
-            margin: 25px 0 10px 0;
+            margin: 30px 0 10px 0;
             border-left: 4px solid var(--pink);
             padding-left: 15px;
         }
 
-        input, select {
+        .qty-input, .admin-input {
             background: #1a1a1a;
             border: 1px solid #333;
             color: white;
@@ -95,26 +130,11 @@
             border-radius: 4px;
         }
 
-        button {
-            background: #1a1a1a;
-            color: var(--pink);
-            border: 1px solid var(--pink);
-            padding: 10px 20px;
-            font-weight: bold;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: 0.2s;
-            border-radius: 4px;
-        }
-
-        button:hover { background: var(--pink); color: white; box-shadow: 0 0 10px var(--pink); }
-        button.primary { background: var(--pink); color: black; }
-
         .total-pill {
             background: var(--pink);
             color: black;
-            padding: 15px;
-            font-size: 1.5rem;
+            padding: 20px;
+            font-size: 1.8rem;
             font-weight: bold;
             text-align: center;
             border-radius: 8px;
@@ -130,10 +150,11 @@
     </style>
 </head>
 <body>
-
     <header>
         <div class="header-content">
-            <div class="logo"><img src="logo.png" alt="Logo"></div>
+            <div class="logo">
+                <img src="logo.png" alt="Vanilla Unicorn Logo">
+            </div>
             <nav>
                 <ul class="nav-links">
                     <li><a href="index.html">Menu rekentool</a></li>
@@ -148,34 +169,32 @@
             <h2>✨ Bestelling Berekenen</h2>
             <div id="calculator-fields"></div>
             
-            <div style="margin-top: 25px; display: flex; gap: 10px;">
+            <div style="margin-top: 30px; display: flex; gap: 10px;">
                 <button class="primary" onclick="calculate()">Bereken Totaal</button>
-                <button onclick="resetFields()">Reset</button>
+                <button onclick="resetFields()">Reset Velden</button>
             </div>
 
             <div id="res-container" hidden>
                 <div class="total-pill">TOTAAL: €<span id="sum-total">0</span></div>
-                <button onclick="copyBon()">📋 Kopieer Bon</button>
+                <button class="primary" onclick="copyBon()">📋 Kopieer Bon</button>
             </div>
         </section>
 
-        <div style="text-align: center;">
-            <button onclick="showLogin()">🔒 Beheer & Export</button>
+        <div style="text-align: center; margin-top: 40px;">
+            <button onclick="showLogin()">🔒 Beheer Producten & Menu</button>
         </div>
 
         <section id="admin-panel" class="card" style="display:none; margin-top: 20px; border: 1px dashed var(--pink);">
             <h3>Beheer & Menu Export</h3>
-            
-            <div style="background: rgba(255,0,255,0.05); padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-                <p>Genereer een menukaart in 2 kolommen onder het logo.</p>
+            <div style="background: rgba(255,0,255,0.05); padding: 15px; border-radius: 8px; margin-bottom: 25px;">
                 <button class="primary" onclick="generateMenuImage()">📸 Download Menu Afbeelding</button>
             </div>
 
             <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-                <input type="text" id="new-name" placeholder="Naam">
-                <input type="number" id="new-price" placeholder="Prijs">
-                <select id="cat-select" onchange="toggleNewCat(this.value)"></select>
-                <input type="text" id="new-cat-name" id="new-cat-wrapper" style="display:none;" placeholder="Nieuwe Cat">
+                <input type="text" id="new-name" class="admin-input" placeholder="Naam">
+                <input type="number" id="new-price" class="admin-input" placeholder="Prijs">
+                <select id="cat-select" class="admin-input" onchange="toggleNewCat(this.value)"></select>
+                <input type="text" id="new-cat-name" id="new-cat-wrapper" style="display:none;" class="admin-input" placeholder="Nieuwe Cat">
                 <button class="primary" onclick="addProduct()">Voeg Toe</button>
             </div>
             <br>
@@ -186,8 +205,8 @@
     <div id="login-overlay">
         <div class="card" style="text-align: center; width: 300px;">
             <h3>Login</h3>
-            <input type="password" id="pass-input" style="width: 80%; margin-bottom: 15px;" placeholder="Wachtwoord">
-            <button class="primary" onclick="checkLogin()">Login</button>
+            <input type="password" id="pass-input" class="admin-input" style="width: 100%; margin-bottom: 15px;" placeholder="Wachtwoord">
+            <button class="primary" onclick="checkLogin()">Inloggen</button>
         </div>
     </div>
 
@@ -197,8 +216,7 @@
         const defaultMenu = [
             { id: '1', name: 'Candy Kiss', price: 69, cat: 'Cocktails' },
             { id: '2', name: 'Pillow Talk', price: 69, cat: 'Cocktails' },
-            { id: '3', name: 'Whiskey', price: 60, cat: 'Sterke Drank' },
-            { id: '4', name: 'Vodka', price: 50, cat: 'Sterke Drank' }
+            { id: '3', name: 'Whiskey', price: 60, cat: 'Sterke Drank' }
         ];
 
         let menu = JSON.parse(localStorage.getItem('vu_menu')) || defaultMenu;
@@ -208,7 +226,6 @@
             const container = document.getElementById('calculator-fields');
             const categories = [...new Set(menu.map(item => item.cat))];
             container.innerHTML = '';
-
             categories.forEach(cat => {
                 container.innerHTML += `<div class="category-header">${cat}</div>`;
                 menu.filter(i => i.cat === cat).forEach(item => {
@@ -217,7 +234,7 @@
                             <span>${item.name}</span>
                             <span style="color:#777;">€${item.price}</span>
                             <input type="number" class="qty-input" data-id="${item.id}" value="0" min="0" style="width:50px;">
-                            <span style="color:var(--pink); text-align: right;">€<span id="sub-${item.id}">0</span></span>
+                            <span style="color:var(--pink); font-weight:bold; text-align: right;">€<span id="sub-${item.id}">0</span></span>
                             ${isAdmin ? `<button onclick="removeProduct('${item.id}')" style="color:red; border-color:red;">X</button>` : ''}
                         </div>`;
                 });
@@ -249,7 +266,6 @@
             document.getElementById('res-container').hidden = false;
         }
 
-        // --- DE MENU AFBEELDING FUNCTIE ---
         function generateMenuImage() {
             const canvas = document.getElementById('menu-canvas');
             const ctx = canvas.getContext('2d');
@@ -261,8 +277,7 @@
                 canvas.height = bg.height;
                 ctx.drawImage(bg, 0, 0);
 
-                // --- HIER PAS JE DE STARTPOSITIE AAN ---
-                const logoHoogte = 550; // Verhoog dit getal als de tekst nog over het logo staat!
+                const logoHoogte = 500; // Pas dit aan voor je menu_bg.png logo
                 const margeX = 100;
                 const kolomBreedte = (canvas.width / 2) - (margeX * 1.5);
                 const tweedeKolomX = (canvas.width / 2) + (margeX / 2);
@@ -277,7 +292,6 @@
                     let curX = links ? margeX : tweedeKolomX;
                     let curY = links ? yLinks : yRechts;
 
-                    // Categorie Titel
                     ctx.font = "bold 45px Arial";
                     ctx.fillStyle = "#ff00ff";
                     ctx.shadowBlur = 10;
@@ -287,22 +301,18 @@
                     
                     curY += 65;
                     ctx.shadowBlur = 0;
-
-                    // Producten onder categorie
                     ctx.font = "32px Arial";
                     ctx.fillStyle = "white";
                     
                     menu.filter(i => i.cat === cat).forEach(item => {
                         ctx.textAlign = "left";
                         ctx.fillText(item.name, curX + 15, curY);
-                        
                         ctx.textAlign = "right";
                         ctx.fillText(`€${item.price}`, curX + kolomBreedte, curY);
                         curY += 45;
                     });
 
-                    curY += 80; // Ruimte voor de volgende categorie
-
+                    curY += 80;
                     if (links) yLinks = curY; else yRechts = curY;
                 });
 
