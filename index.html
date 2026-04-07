@@ -213,6 +213,7 @@
                         <option value="Mocktails">Mocktails</option>
                         <option value="Sterke Dranken">Sterke Dranken</option>
                         <option value="Frisdranken">Frisdranken</option>
+                        <option value="Shots">Shots</option>
                     </select>
                 </div>
                 <div class="admin-full-row">
@@ -254,7 +255,7 @@
 
         let menu = [];
         window.isAdmin = false;
-        const fixedCategories = ["Cocktails", "Mocktails", "Sterke Dranken", "Frisdranken"];
+        const fixedCategories = ["Cocktails", "Mocktails", "Sterke Dranken", "Frisdranken", "Shots"];
 
         // Data ophalen
         onValue(menuRef, (snapshot) => {
