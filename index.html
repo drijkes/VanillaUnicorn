@@ -87,8 +87,23 @@
             background: #1a1a1a;
             border: 1px solid #333;
             color: white;
-            padding: 8px;
+            padding: 10px;
             border-radius: 4px;
+            width: 100%; /* Zorgt dat ze de grid-cel vullen */
+            box-sizing: border-box;
+        }
+
+        /* GRID VOOR BEHEER MENU */
+        .admin-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr; /* Drie gelijke kolommen */
+            gap: 15px;
+            align-items: end;
+        }
+
+        .admin-full-row {
+            grid-column: 1 / -1; /* Nieuwe categorie balk over de volle breedte */
+            margin-top: 10px;
         }
 
         .total-pill {
@@ -154,12 +169,28 @@
                 <button class="primary" onclick="generateMenuImage()">📸 Download Menu Kaart</button>
             </div>
 
-            <div class="admin-controls" style="display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-end;">
-                <input type="text" id="new-name" class="admin-input" placeholder="Naam">
-                <input type="number" id="new-price" class="admin-input" placeholder="Prijs (€)">
-                <select id="cat-select" class="admin-input" onchange="toggleNewCat(this.value)"></select>
-                <input type="text" id="new-cat-name" class="admin-input" placeholder="Nieuwe cat..." style="display:none;">
-                <button class="primary" onclick="addProduct()">Voeg Toe</button>
+            <div class="admin-controls">
+                <div>
+                    <label style="font-size: 0.7rem; color: #888;">PRODUCT NAAM</label>
+                    <input type="text" id="new-name" class="admin-input" placeholder="Naam">
+                </div>
+                <div>
+                    <label style="font-size: 0.7rem; color: #888;">PRIJS (€)</label>
+                    <input type="number" id="new-price" class="admin-input" placeholder="Prijs">
+                </div>
+                <div>
+                    <label style="font-size: 0.7rem; color: #888;">CATEGORIE</label>
+                    <select id="cat-select" class="admin-input" onchange="toggleNewCat(this.value)"></select>
+                </div>
+                
+                <div id="new-cat-wrapper" class="admin-full-row" style="display:none;">
+                    <label style="font-size: 0.7rem; color: #888;">NIEUWE CATEGORIE NAAM</label>
+                    <input type="text" id="new-cat-name" class="admin-input" placeholder="Typ hier de nieuwe categorie...">
+                </div>
+
+                <div class="admin-full-row">
+                    <button class="primary" style="width: 100%;" onclick="addProduct()">Product Toevoegen aan Database</button>
+                </div>
             </div>
             <br>
             <button onclick="location.reload()">Beheer Sluiten</button>
@@ -180,7 +211,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, onValue, push, remove, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // JOUW FIREBASE CONFIGURATIE
         const firebaseConfig = {
           apiKey: "AIzaSyCGwVSBIOTwKjgTTDil9LB_G8Luyi2lIUc",
           authDomain: "vanillaunicornmenu.firebaseapp.com",
@@ -191,7 +221,6 @@
           appId: "1:313401459961:web:ec2c0990d3836de48c8e28"
         };
 
-        // Initialiseer Firebase
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const menuRef = ref(db, 'menu');
@@ -199,14 +228,12 @@
         let menu = [];
         window.isAdmin = false;
 
-        // DATA LADEN UIT FIREBASE
         onValue(menuRef, (snapshot) => {
             const data = snapshot.val();
             menu = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
             render();
         });
 
-        // RENDER FUNCTIE
         function render() {
             const container = document.getElementById('calculator-fields');
             if (menu.length === 0) { container.innerHTML = "Geen producten in database."; }
@@ -232,7 +259,6 @@
             select.innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join('') + `<option value="NEW">+ Nieuwe...</option>`;
         }
 
-        // FIREBASE ACTIES
         window.addProduct = function() {
             const name = document.getElementById('new-name').value;
             const price = parseFloat(document.getElementById('new-price').value);
@@ -242,6 +268,9 @@
                 push(menuRef, { name, price, cat });
                 document.getElementById('new-name').value = '';
                 document.getElementById('new-price').value = '';
+                document.getElementById('new-cat-name').value = '';
+            } else {
+                alert("Vul alle velden in!");
             }
         };
 
@@ -251,7 +280,6 @@
             }
         };
 
-        // UI FUNCTIES
         window.calculate = function() {
             let total = 0;
             document.querySelectorAll('.qty-input').forEach(input => {
@@ -312,7 +340,7 @@
         };
 
         window.showLogin = function() { document.getElementById('login-overlay').style.display = 'flex'; };
-        window.toggleNewCat = function(v) { document.getElementById('new-cat-name').style.display = v === 'NEW' ? 'inline-block' : 'none'; };
+        window.toggleNewCat = function(v) { document.getElementById('new-cat-wrapper').style.display = v === 'NEW' ? 'block' : 'none'; };
         window.resetFields = function() { document.querySelectorAll('.qty-input').forEach(i => i.value = 0); window.calculate(); };
         window.copyBon = function() { alert("Bon gekopieerd naar klembord!"); };
     </script>
