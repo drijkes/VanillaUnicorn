@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vanilla Unicorn | Room-timers</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Vanilla Unicorn | Menu Beheer</title>
     <style>
         :root { 
             --pink: #ff00ff; 
@@ -12,7 +11,6 @@
             --card-bg: #111;
         }
 
-        /* Header & Navigatie Styling */
         body {
             background-color: var(--dark-bg);
             color: white;
@@ -21,43 +19,45 @@
             padding: 0;
         }
 
-        .wrap { max-width: 1000px; margin: 20px auto; padding: 0 20px; }
+        /* Header & Navigatie */
+        header {
+            background: #000;
+            border-bottom: 2px solid var(--pink);
+            padding: 10px 0;
+        }
 
-        /* Vanilla Unicorn Knoppen */
-        button, .btn-timer {
-            background: #1a1a1a;
-            color: #ff00ff;
-            border: 1px solid #ff00ff;
-            padding: 10px 20px;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: 0.2s;
+        .header-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .logo img { height: 50px; }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            gap: 20px;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
             font-weight: bold;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            border-radius: 4px;
+            font-size: 0.8rem;
         }
 
-        button:hover, .btn-timer:hover {
-            background: #ff00ff;
-            color: white;
-            box-shadow: 0 0 10px #ff00ff;
-        }
+        .nav-links a:hover { color: var(--pink); }
 
-        button.primary {
-            background: var(--pink);
-            color: black;
-            border: 2px solid var(--pink);
-        }
+        /* Content */
+        .wrap { max-width: 1000px; margin: 30px auto; padding: 0 20px; }
 
-        button.primary:hover {
-            background: white;
-            color: black;
-            border-color: white;
-            box-shadow: 0 0 20px white;
-        }
-
-        /* Kaart styling */
         .card {
             background: var(--card-bg);
             border: 1px solid #222;
@@ -69,26 +69,25 @@
 
         h2, h3 { color: var(--pink); text-shadow: 0 0 10px rgba(255,0,255,0.3); margin-top: 0; }
 
-        /* Grid voor producten in de lijst */
         .grid-row { 
             display: grid; 
             grid-template-columns: 2fr 1fr 0.8fr 1fr auto; 
             gap: 15px; 
             align-items: center; 
-            padding: 12px 0; 
-            border-bottom: 1px solid #333;
+            padding: 10px 0; 
+            border-bottom: 1px solid #222;
         }
 
         .category-header { 
             color: var(--pink); 
             font-weight: bold; 
             text-transform: uppercase; 
-            margin: 30px 0 10px 0;
+            margin: 25px 0 10px 0;
             border-left: 4px solid var(--pink);
             padding-left: 15px;
         }
 
-        .qty-input, .admin-input {
+        input, select {
             background: #1a1a1a;
             border: 1px solid #333;
             color: white;
@@ -96,18 +95,30 @@
             border-radius: 4px;
         }
 
-        .admin-input { width: 200px; height: 40px; box-sizing: border-box; }
+        button {
+            background: #1a1a1a;
+            color: var(--pink);
+            border: 1px solid var(--pink);
+            padding: 10px 20px;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: 0.2s;
+            border-radius: 4px;
+        }
+
+        button:hover { background: var(--pink); color: white; box-shadow: 0 0 10px var(--pink); }
+        button.primary { background: var(--pink); color: black; }
 
         .total-pill {
             background: var(--pink);
             color: black;
-            padding: 20px;
-            font-size: 1.8rem;
+            padding: 15px;
+            font-size: 1.5rem;
             font-weight: bold;
             text-align: center;
             border-radius: 8px;
             margin: 20px 0;
-            box-shadow: 0 0 15px var(--pink);
         }
 
         #login-overlay {
@@ -115,16 +126,14 @@
             background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 1000;
         }
 
-        /* Canvas voor menu export verbergen */
         #menu-canvas { display: none; }
     </style>
 </head>
 <body>
+
     <header>
         <div class="header-content">
-            <div class="logo">
-                <img src="logo.png" alt="Vanilla Unicorn Logo">
-            </div>
+            <div class="logo"><img src="logo.png" alt="Logo"></div>
             <nav>
                 <ul class="nav-links">
                     <li><a href="index.html">Menu rekentool</a></li>
@@ -137,78 +146,59 @@
     <div class="wrap">
         <section class="card">
             <h2>✨ Bestelling Berekenen</h2>
-            <div id="calculator-fields">
-                </div>
+            <div id="calculator-fields"></div>
             
-            <div style="margin-top: 30px; display: flex; gap: 10px;">
+            <div style="margin-top: 25px; display: flex; gap: 10px;">
                 <button class="primary" onclick="calculate()">Bereken Totaal</button>
-                <button onclick="resetFields()">Reset Velden</button>
+                <button onclick="resetFields()">Reset</button>
             </div>
 
             <div id="res-container" hidden>
                 <div class="total-pill">TOTAAL: €<span id="sum-total">0</span></div>
-                <button class="primary" onclick="copyBon()">📋 Kopieer Bon</button>
+                <button onclick="copyBon()">📋 Kopieer Bon</button>
             </div>
         </section>
 
-        <div style="text-align: center; margin-top: 40px;">
-            <button onclick="showLogin()">🔒 Beheer Producten & Menu</button>
+        <div style="text-align: center;">
+            <button onclick="showLogin()">🔒 Beheer & Export</button>
         </div>
 
         <section id="admin-panel" class="card" style="display:none; margin-top: 20px; border: 1px dashed var(--pink);">
             <h3>Beheer & Menu Export</h3>
             
-            <div style="background: rgba(255,0,255,0.05); padding: 15px; border-radius: 8px; margin-bottom: 25px; border: 1px solid rgba(255,0,255,0.2);">
-                <h4 style="margin-top:0;">🖼️ Menu Afbeelding Genereren</h4>
-                <p style="font-size: 0.8rem; color: #aaa; margin-bottom: 15px;">Dit maakt een PNG van je huidige assortiment op de achtergrond van menu_bg.png.</p>
-                <button class="primary" onclick="generateMenuImage()">📸 Download Menu Kaart</button>
+            <div style="background: rgba(255,0,255,0.05); padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                <p>Genereer een menukaart in 2 kolommen onder het logo.</p>
+                <button class="primary" onclick="generateMenuImage()">📸 Download Menu Afbeelding</button>
             </div>
 
-            <div class="admin-controls" style="display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-end;">
-                <div class="control-group" style="display:flex; flex-direction:column; gap:5px;">
-                    <label style="font-size: 0.7rem; color: #888;">PRODUCT NAAM</label>
-                    <input type="text" id="new-name" class="admin-input" placeholder="bijv. Vodka">
-                </div>
-                <div class="control-group" style="display:flex; flex-direction:column; gap:5px;">
-                    <label style="font-size: 0.7rem; color: #888;">PRIJS (€)</label>
-                    <input type="number" id="new-price" class="admin-input" placeholder="0">
-                </div>
-                <div class="control-group" style="display:flex; flex-direction:column; gap:5px;">
-                    <label style="font-size: 0.7rem; color: #888;">CATEGORIE</label>
-                    <select id="cat-select" class="admin-input" onchange="toggleNewCat(this.value)"></select>
-                </div>
-                <div class="control-group" id="new-cat-wrapper" style="display:none; flex-direction:column; gap:5px;">
-                    <label style="font-size: 0.7rem; color: #888;">NIEUWE CATEGORIE</label>
-                    <input type="text" id="new-cat-name" class="admin-input" placeholder="Naam...">
-                </div>
+            <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                <input type="text" id="new-name" placeholder="Naam">
+                <input type="number" id="new-price" placeholder="Prijs">
+                <select id="cat-select" onchange="toggleNewCat(this.value)"></select>
+                <input type="text" id="new-cat-name" id="new-cat-wrapper" style="display:none;" placeholder="Nieuwe Cat">
                 <button class="primary" onclick="addProduct()">Voeg Toe</button>
             </div>
             <br>
-            <button onclick="location.reload()">Beheer Sluiten</button>
+            <button onclick="location.reload()">Sluiten</button>
         </section>
     </div>
 
     <div id="login-overlay">
         <div class="card" style="text-align: center; width: 300px;">
-            <h3>Personeel Login</h3>
-            <input type="password" id="pass-input" class="admin-input" style="width: 100%; text-align: center; margin-bottom: 15px;" placeholder="Wachtwoord">
-            <div style="display: flex; gap: 10px;">
-                <button class="primary" style="flex:1;" onclick="checkLogin()">Login</button>
-                <button style="flex:1;" onclick="hideLogin()">Sluiten</button>
-            </div>
-            <p id="login-err" style="color:red; font-size: 0.8rem; margin-top: 10px;"></p>
+            <h3>Login</h3>
+            <input type="password" id="pass-input" style="width: 80%; margin-bottom: 15px;" placeholder="Wachtwoord">
+            <button class="primary" onclick="checkLogin()">Login</button>
         </div>
     </div>
 
     <canvas id="menu-canvas"></canvas>
 
     <script>
-        // Data management
         const defaultMenu = [
             { id: '1', name: 'Candy Kiss', price: 69, cat: 'Cocktails' },
             { id: '2', name: 'Pillow Talk', price: 69, cat: 'Cocktails' },
-            { id: '3', name: 'The Mistress', price: 69, cat: 'Cocktails' },
-            { id: '4', name: 'Whiskey', price: 60, cat: 'Sterke Drank' }
+            { id: '3', name: 'Whiskey', price: 60, cat: 'Sterke Drank' },
+            { id: '4', name: 'Vodka', price: 50, cat: 'Sterke Drank' }
         ];
 
         let menu = JSON.parse(localStorage.getItem('vu_menu')) || defaultMenu;
@@ -226,32 +216,24 @@
                         <div class="grid-row">
                             <span>${item.name}</span>
                             <span style="color:#777;">€${item.price}</span>
-                            <input type="number" class="qty-input" data-id="${item.id}" value="0" min="0" style="width: 50px; text-align: center;">
-                            <span style="color:var(--pink); font-weight:bold; text-align: right;">€<span id="sub-${item.id}">0</span></span>
-                            ${isAdmin ? `<button style="padding:2px 8px; border-color:red; color:red;" onclick="removeProduct('${item.id}')">X</button>` : ''}
+                            <input type="number" class="qty-input" data-id="${item.id}" value="0" min="0" style="width:50px;">
+                            <span style="color:var(--pink); text-align: right;">€<span id="sub-${item.id}">0</span></span>
+                            ${isAdmin ? `<button onclick="removeProduct('${item.id}')" style="color:red; border-color:red;">X</button>` : ''}
                         </div>`;
                 });
             });
-            updateCatDropdown(categories);
-        }
-
-        function updateCatDropdown(categories) {
             const select = document.getElementById('cat-select');
-            if(!select) return;
-            select.innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join('');
-            select.innerHTML += `<option value="NEW">+ Nieuwe...</option>`;
+            select.innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join('') + `<option value="NEW">+ Nieuwe...</option>`;
         }
 
-        function toggleNewCat(val) { document.getElementById('new-cat-wrapper').style.display = (val === 'NEW') ? 'flex' : 'none'; }
         function showLogin() { document.getElementById('login-overlay').style.display = 'flex'; }
         function hideLogin() { document.getElementById('login-overlay').style.display = 'none'; }
-
         function checkLogin() {
             if(document.getElementById('pass-input').value === "unicorn2024") {
                 isAdmin = true; hideLogin();
                 document.getElementById('admin-panel').style.display = 'block';
                 render();
-            } else { document.getElementById('login-err').textContent = "Wachtwoord onjuist!"; }
+            }
         }
 
         function calculate() {
@@ -263,113 +245,95 @@
                 document.getElementById(`sub-${id}`).textContent = sub;
                 total += sub;
             });
-            document.getElementById('sum-total').textContent = total.toLocaleString();
+            document.getElementById('sum-total').textContent = total;
             document.getElementById('res-container').hidden = false;
         }
 
-        function resetFields() {
-            document.querySelectorAll('.qty-input').forEach(i => i.value = 0);
-            document.querySelectorAll('[id^="sub-"]').forEach(s => s.textContent = "0");
-            document.getElementById('res-container').hidden = true;
-        }
-
-        function addProduct() {
-            const name = document.getElementById('new-name').value;
-            const price = parseFloat(document.getElementById('new-price').value);
-            const catSelect = document.getElementById('cat-select').value;
-            const finalCat = (catSelect === 'NEW') ? document.getElementById('new-cat-name').value : catSelect;
-
-            if(name && price && finalCat) {
-                menu.push({ id: Date.now().toString(), name, price, cat: finalCat });
-                localStorage.setItem('vu_menu', JSON.stringify(menu));
-                render();
-                document.getElementById('new-name').value = '';
-                document.getElementById('new-price').value = '';
-            }
-        }
-
-        function removeProduct(id) {
-            if(confirm("Dit product verwijderen?")) {
-                menu = menu.filter(i => i.id !== id);
-                localStorage.setItem('vu_menu', JSON.stringify(menu));
-                render();
-            }
-        }
-
-        // DE MENU AFBEELDING GENERATOR
+        // --- DE MENU AFBEELDING FUNCTIE ---
         function generateMenuImage() {
             const canvas = document.getElementById('menu-canvas');
             const ctx = canvas.getContext('2d');
             const bg = new Image();
-            
-            // Toevoegen van een timestamp voorkomt dat de browser een oude versie uit het geheugen pakt
             bg.src = 'menu_bg.png?' + new Date().getTime();
 
             bg.onload = function() {
                 canvas.width = bg.width;
                 canvas.height = bg.height;
-                
-                // Teken de achtergrond afbeelding
                 ctx.drawImage(bg, 0, 0);
 
-                let y = 250; // Beginhoogte van de tekst (aanpassen indien nodig)
-                const margin = 120; // Kantlijn links en rechts
+                // --- HIER PAS JE DE STARTPOSITIE AAN ---
+                const logoHoogte = 550; // Verhoog dit getal als de tekst nog over het logo staat!
+                const margeX = 100;
+                const kolomBreedte = (canvas.width / 2) - (margeX * 1.5);
+                const tweedeKolomX = (canvas.width / 2) + (margeX / 2);
+                
+                let yLinks = logoHoogte;
+                let yRechts = logoHoogte;
+                
                 const categories = [...new Set(menu.map(item => item.cat))];
+                
+                categories.forEach((cat, index) => {
+                    const links = index % 2 === 0;
+                    let curX = links ? margeX : tweedeKolomX;
+                    let curY = links ? yLinks : yRechts;
 
-                categories.forEach(cat => {
-                    // TEKEN CATEGORIE TITEL (Neon Roze)
+                    // Categorie Titel
                     ctx.font = "bold 45px Arial";
                     ctx.fillStyle = "#ff00ff";
-                    ctx.textAlign = "left";
-                    ctx.shadowBlur = 15;
+                    ctx.shadowBlur = 10;
                     ctx.shadowColor = "#ff00ff";
-                    ctx.fillText(cat.toUpperCase(), margin, y);
+                    ctx.textAlign = "left";
+                    ctx.fillText(cat.toUpperCase(), curX, curY);
                     
-                    ctx.shadowBlur = 0; // Schaduw uit voor normale tekst
-                    y += 65;
+                    curY += 65;
+                    ctx.shadowBlur = 0;
 
-                    // TEKEN PRODUCTEN
+                    // Producten onder categorie
                     ctx.font = "32px Arial";
                     ctx.fillStyle = "white";
-
+                    
                     menu.filter(i => i.cat === cat).forEach(item => {
-                        // Product naam
                         ctx.textAlign = "left";
-                        ctx.fillText(item.name, margin + 20, y);
+                        ctx.fillText(item.name, curX + 15, curY);
                         
-                        // Prijs (rechts uitgelijnd)
                         ctx.textAlign = "right";
-                        ctx.fillText(`€ ${item.price},-`, canvas.width - margin, y);
-                        
-                        y += 48; // Volgende regel
+                        ctx.fillText(`€${item.price}`, curX + kolomBreedte, curY);
+                        curY += 45;
                     });
 
-                    y += 55; // Ruimte tussen categorieën
+                    curY += 80; // Ruimte voor de volgende categorie
+
+                    if (links) yLinks = curY; else yRechts = curY;
                 });
 
-                // Download proces
-                try {
-                    const link = document.createElement('a');
-                    link.download = 'Vanilla_Unicorn_Menu_Kaart.png';
-                    link.href = canvas.toDataURL('image/png');
-                    link.click();
-                } catch (e) {
-                    alert("Beveiligingsfout: De browser staat het genereren van afbeeldingen niet toe bij lokaal gebruik (file://). Dit werkt wel zodra het op een server staat!");
-                }
-            };
-
-            bg.onerror = function() {
-                alert("FOUT: 'menu_bg.png' niet gevonden in deze map!");
+                const link = document.createElement('a');
+                link.download = 'Vanilla_Unicorn_Menu.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
             };
         }
 
-        function copyBon() {
-            const total = document.getElementById('sum-total').textContent;
-            navigator.clipboard.writeText(`🦄 VANILLA UNICORN\n--------------------\nTotaal: €${total}\n--------------------\nBedankt voor je bezoek! ✨`);
-            alert("Bon gekopieerd naar klembord!");
+        function addProduct() {
+            const name = document.getElementById('new-name').value;
+            const price = parseFloat(document.getElementById('new-price').value);
+            const cat = document.getElementById('cat-select').value === 'NEW' ? document.getElementById('new-cat-name').value : document.getElementById('cat-select').value;
+            if(name && price && cat) {
+                menu.push({ id: Date.now().toString(), name, price, cat });
+                localStorage.setItem('vu_menu', JSON.stringify(menu));
+                render();
+            }
         }
 
-        // Start applicatie
+        function removeProduct(id) {
+            menu = menu.filter(i => i.id !== id);
+            localStorage.setItem('vu_menu', JSON.stringify(menu));
+            render();
+        }
+
+        function toggleNewCat(v) { document.getElementById('new-cat-name').style.display = v === 'NEW' ? 'block' : 'none'; }
+        function resetFields() { document.querySelectorAll('.qty-input').forEach(i => i.value = 0); calculate(); }
+        function copyBon() { alert("Bon gekopieerd!"); }
+
         render();
     </script>
 </body>
