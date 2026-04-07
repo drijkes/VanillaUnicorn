@@ -238,7 +238,7 @@
                     <select id="cat-select" class="admin-input">
                         <option value="Cocktails">Cocktails</option>
                         <option value="Mocktails">Mocktails</option>
-                        <option value="Alcoholische Dranken">Alcoholische Dranken</option>
+                        <option value="Alcohol">Alcohol</option>
                         <option value="Frisdranken">Frisdranken</option>
                     </select>
                 </div>
@@ -282,7 +282,7 @@
 
         let menu = [];
         window.isAdmin = false;
-        const fixedCategories = ["Cocktails", "Mocktails", "Alcoholische Dranken", "Frisdranken"];
+        const fixedCategories = ["Cocktails", "Mocktails", "Alcohol", "Frisdranken"];
 
         onValue(menuRef, (snapshot) => {
             const data = snapshot.val();
