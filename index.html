@@ -37,7 +37,6 @@
         }
 
         .logo img {
-            /* Behoudt natuurlijke grootte zoals in timers.html */
             display: block;
         }
 
@@ -58,33 +57,10 @@
             font-size: 0.9rem;
         }
 
-        /* --- ROOM-TIMERS SPECIFIEKE STYLING --- */
-        .room-photo {
-            width: 100%;
-            height: 150px;
-            object-fit: cover;
-            border-bottom: 2px solid #ff00ff;
-            margin-bottom: 10px;
-        }
-
-        .timer-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-            padding: 20px;
-        }
-
-        .button-group {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 5px;
-            margin-top: 10px;
-        }
-
-        /* --- MENU & REKENTOOL STYLING --- */
+        /* --- LAYOUT --- */
         .wrap { max-width: 1000px; margin: 20px auto; padding: 0 20px; }
 
-        button, .btn-timer {
+        button {
             background: #1a1a1a;
             color: #ff00ff;
             border: 1px solid #ff00ff;
@@ -98,7 +74,7 @@
             border-radius: 4px;
         }
 
-        button:hover, .btn-timer:hover {
+        button:hover {
             background: #ff00ff;
             color: white;
             box-shadow: 0 0 10px #ff00ff;
@@ -176,9 +152,6 @@
         }
 
         #menu-canvas { display: none; }
-
-        @media (max-width: 1000px) { .timer-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 600px) { .timer-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -238,11 +211,10 @@
                     <select id="cat-select" class="admin-input">
                         <option value="Cocktails">Cocktails</option>
                         <option value="Mocktails">Mocktails</option>
-                        <option value="Alcohol">Alcohol</option>
+                        <option value="Alcoholische Dranken">Alcoholische Dranken</option>
                         <option value="Frisdranken">Frisdranken</option>
                     </select>
                 </div>
-
                 <div class="admin-full-row">
                     <button class="primary" style="width: 100%;" onclick="addProduct()">Product Opslaan</button>
                 </div>
@@ -282,18 +254,19 @@
 
         let menu = [];
         window.isAdmin = false;
-        const fixedCategories = ["Cocktails", "Mocktails", "Alcohol", "Frisdranken"];
+        const fixedCategories = ["Cocktails", "Mocktails", "Alcoholische Dranken", "Frisdranken"];
 
+        // Data ophalen
         onValue(menuRef, (snapshot) => {
             const data = snapshot.val();
             menu = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
             render();
         });
 
+        // UI Renderen
         function render() {
             const container = document.getElementById('calculator-fields');
             container.innerHTML = '';
-
             fixedCategories.forEach(cat => {
                 const items = menu.filter(i => i.cat === cat);
                 if(items.length > 0 || window.isAdmin) {
@@ -309,25 +282,10 @@
                     });
                 }
             });
-
             if (menu.length === 0) container.innerHTML = "Geen producten gevonden.";
         }
 
-        window.addProduct = function() {
-            const name = document.getElementById('new-name').value.trim();
-            const price = parseFloat(document.getElementById('new-price').value);
-            const cat = document.getElementById('cat-select').value;
-            if(name && !isNaN(price)) {
-                push(menuRef, { name, price, cat });
-                document.getElementById('new-name').value = '';
-                document.getElementById('new-price').value = '';
-            }
-        };
-
-        window.removeProduct = function(id) {
-            if(confirm("Verwijderen?")) remove(ref(db, 'menu/' + id));
-        };
-
+        // Rekenen
         window.calculate = function() {
             let total = 0;
             document.querySelectorAll('.qty-input').forEach(input => {
@@ -343,6 +301,7 @@
             document.getElementById('res-container').hidden = false;
         };
 
+        // AFBEELDING GENEREREN (ZONDER OVERLAP)
         window.generateMenuImage = function() {
             const canvas = document.getElementById('menu-canvas');
             const ctx = canvas.getContext('2d');
@@ -351,35 +310,82 @@
             bg.src = 'menu_bg.png?' + new Date().getTime();
 
             bg.onload = function() {
-                canvas.width = bg.width; canvas.height = bg.height;
+                canvas.width = bg.width; 
+                canvas.height = bg.height;
                 ctx.drawImage(bg, 0, 0);
-                const yStart = 480; let y = yStart; const margin = 100;
-                const columnWidth = (canvas.width / 2) - (margin * 1.3);
+
+                const margin = 80;
+                const columnWidth = (canvas.width / 2) - (margin * 1.5);
+                const yStart = 450; 
                 
+                // Onafhankelijke Y-trackers voor links en rechts
+                let yLeft = yStart;
+                let yRight = yStart;
+
                 fixedCategories.forEach((cat, index) => {
                     const items = menu.filter(i => i.cat === cat);
                     if(items.length === 0) return;
-                    let col = index % 2;
-                    let xPos = margin + (col * (columnWidth + 80));
-                    if (col === 1 && index === 1) y = yStart;
-                    ctx.font = "bold 42px Arial"; ctx.fillStyle = "#ff00ff"; ctx.textAlign = "left";
-                    ctx.shadowBlur = 10; ctx.shadowColor = "#ff00ff";
-                    ctx.fillText(cat.toUpperCase(), xPos, y);
-                    ctx.shadowBlur = 0; y += 60;
-                    ctx.font = "32px Arial"; ctx.fillStyle = "white";
+
+                    // Bepaal kolom: eerste 2 links, rest rechts
+                    const isLeftColumn = index < 2;
+                    const xPos = isLeftColumn ? margin : (canvas.width / 2) + 40;
+                    let currentY = isLeftColumn ? yLeft : yRight;
+
+                    // Teken Categorie Titel
+                    ctx.font = "bold 42px Arial"; 
+                    ctx.fillStyle = "#ff00ff"; 
+                    ctx.textAlign = "left";
+                    ctx.shadowBlur = 8; 
+                    ctx.shadowColor = "#ff00ff";
+                    ctx.fillText(cat.toUpperCase(), xPos, currentY);
+                    
+                    ctx.shadowBlur = 0; 
+                    currentY += 55;
+
+                    // Teken Producten
+                    ctx.font = "30px Arial"; 
+                    ctx.fillStyle = "white";
+                    
                     items.forEach(item => {
-                        ctx.textAlign = "left"; ctx.fillText(item.name, xPos + 10, y);
-                        ctx.textAlign = "right"; ctx.fillText(`€${item.price},-`, xPos + columnWidth, y);
-                        y += 45;
+                        // Naam links in de kolom
+                        ctx.textAlign = "left"; 
+                        ctx.fillText(item.name, xPos + 5, currentY);
+                        
+                        // Prijs rechts in de kolom
+                        ctx.textAlign = "right"; 
+                        ctx.fillText(`€${item.price},-`, xPos + columnWidth, currentY);
+                        currentY += 42;
                     });
-                    y += 70;
+
+                    currentY += 60; // Extra witruimte na categorie
+
+                    // Sla de nieuwe Y-positie op voor de specifieke kolom
+                    if (isLeftColumn) yLeft = currentY; else yRight = currentY;
                 });
+
+                // Downloaden
                 const link = document.createElement('a');
                 link.download = 'Vanilla_Unicorn_Menu.png';
                 link.href = canvas.toDataURL('image/png');
                 link.click();
             };
-            bg.onerror = () => alert("Zorg dat 'menu_bg.png' in de map staat.");
+            bg.onerror = () => alert("Zorg dat 'menu_bg.png' aanwezig is in de map.");
+        };
+
+        // Admin functies
+        window.addProduct = function() {
+            const name = document.getElementById('new-name').value.trim();
+            const price = parseFloat(document.getElementById('new-price').value);
+            const cat = document.getElementById('cat-select').value;
+            if(name && !isNaN(price)) {
+                push(menuRef, { name, price, cat });
+                document.getElementById('new-name').value = '';
+                document.getElementById('new-price').value = '';
+            }
+        };
+
+        window.removeProduct = function(id) {
+            if(confirm("Dit product verwijderen uit de database?")) remove(ref(db, 'menu/' + id));
         };
 
         window.checkLogin = function() {
@@ -388,7 +394,7 @@
                 document.getElementById('admin-panel').style.display = 'block';
                 document.getElementById('login-overlay').style.display = 'none';
                 render();
-            } else { alert("Fout!"); }
+            } else { alert("Onjuist wachtwoord."); }
         };
 
         window.showLogin = function() { document.getElementById('login-overlay').style.display = 'flex'; };
@@ -399,7 +405,7 @@
         };
 
         window.copyBon = function() {
-            let text = "UNICORN BON:\n";
+            let text = "--- VANILLA UNICORN BON ---\n";
             document.querySelectorAll('.qty-input').forEach(input => {
                 const qty = parseInt(input.value) || 0;
                 if(qty > 0) {
@@ -407,8 +413,9 @@
                     text += `${qty}x ${item.name} (€${qty * item.price})\n`;
                 }
             });
+            text += "---------------------------\n";
             text += "TOTAAL: €" + document.getElementById('sum-total').textContent;
-            navigator.clipboard.writeText(text).then(() => alert("Bon gekopieerd!"));
+            navigator.clipboard.writeText(text).then(() => alert("Bon gekopieerd naar klembord!"));
         };
     </script>
 </body>
