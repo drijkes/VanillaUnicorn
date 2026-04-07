@@ -157,7 +157,7 @@
             
             <div style="background: rgba(255,0,255,0.05); padding: 15px; border-radius: 8px; margin-bottom: 25px; border: 1px solid rgba(255,0,255,0.2);">
                 <h4 style="margin-top:0;">🖼️ Menu Afbeelding Genereren</h4>
-                <p style="font-size: 0.8rem; color: #aaa; margin-bottom: 15px;">Dit maakt een afbeelding van je huidige assortiment onder het logo van menu_bg.jpg.</p>
+                <p style="font-size: 0.8rem; color: #aaa; margin-bottom: 15px;">Dit maakt een afbeelding van je huidige assortiment onder het logo van menu_bg.png.</p>
                 <button class="primary" onclick="generateMenuImage()">📸 Download Menu Kaart</button>
             </div>
 
@@ -236,7 +236,7 @@
             
             // CORS instellen voor GitHub Pages
             bg.setAttribute('crossOrigin', 'anonymous');
-            bg.src = 'menu_bg.jpg?' + new Date().getTime();
+            bg.src = 'menu_bg.png?' + new Date().getTime();
 
             bg.onload = function() {
                 canvas.width = bg.width;
@@ -287,7 +287,7 @@
                     alert("Download geblokkeerd door browserbeveiliging. Dit kan gebeuren op GitHub. Probeer een andere browser of check de console.");
                 }
             };
-            bg.onerror = () => alert("Bestand 'menu_bg.jpg' niet gevonden!");
+            bg.onerror = () => alert("Bestand 'menu_bg.png' niet gevonden!");
         }
 
         // --- OVERIGE LOGICA ---
